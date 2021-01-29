@@ -25,4 +25,9 @@ Route::group([
 		"as"	=> "apis.messages.store",
 		"uses"	=> "APIs\MessagesController@store"
 	]);
+
+	Route::post("/attachments", [
+		"as"	=> "apis.attachments.store",
+		"uses"	=> "APIs\AttachmentsController@store"
+	]);
 });
