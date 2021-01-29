@@ -22,8 +22,8 @@ class AttachmentFactory extends Factory
     public function definition()
     {
         return [
-            'original_file_name'    => $this->faker->file('docs', 'site', false),
-            'file_path'             => $this->faker->file('docs', 'site', false)
+            'original_file_name'    => 'file_path.jpg',
+            'file_path'             => 'file_path.jpg' 
         ];
     }
 }

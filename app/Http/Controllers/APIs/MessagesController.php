@@ -24,6 +24,8 @@ class MessagesController extends Controller
             "subject"           => "required",
             "bodyAsText"        => "nullable",
             "bodyAsHtml"		=> "nullable",
+            "attachments"		=> "nullable|array",
+            "attachments.*"		=> "required|exists:attachments,id",
 		], []);
 
 		try {
@@ -38,6 +40,10 @@ class MessagesController extends Controller
 				"body_html" 		=> trim($data["bodyAsHtml"]),
 			]);
 
+			if (array_key_exists('attachments', $data) && !empty($data['attachments'])) {
+				$message->attachments()->attach($data['attachments']);
+			}
+
 			return response()->json([
 				"code"		=> 201,
 				"message"	=> "Placed message for sending",
@@ -51,7 +57,14 @@ class MessagesController extends Controller
 	                "bodyAsHtml"        => $message->body_html,
                     "status"			=> $message->status,
                     "createdAt"			=> $message->created_at,
-                    "updatedAt"			=> $message->updated_at
+                    "updatedAt"			=> $message->updated_at,
+                    "attachments"		=> $message->attachments->map(function ($attachment) {
+                    	return [
+                    		"attachmentId"	=> $attachment->id,
+                    		"filePath"		=> $attachment->file_path,
+                    		"createdAt"		=> $attachment->created_at
+                    	];
+                    })
 				]
 			], 201);
 		} catch (Exception $e) {

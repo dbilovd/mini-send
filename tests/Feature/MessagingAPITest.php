@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Events\MessageCreated;
+use App\Models\Attachment;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class MessagingAPITest extends TestCase
@@ -99,5 +101,37 @@ class MessagingAPITest extends TestCase
                 && $job->message->recipient_email == $message->recipient_email
                 && $job->message->subject == $message->subject;
         });
+   }
+
+   /** @test */
+   public function it_can_attach_attachments_when_creating_messages_to_send()
+   {
+        Storage::fake("attachments");
+
+        $user = User::factory()->create();
+        $message = Message::factory()->make([
+            'user_id'   => $user->id
+        ]);
+        $attachments = Attachment::factory(2)->create();
+
+        $response = $this->actingAs($user)
+            ->post("/api/messages", [
+                "userId"            => $user->id,
+                "senderEmail"       => $message->sender_email,
+                "recipientEmail"    => $message->recipient_email,
+                "subject"           => $message->subject,
+                "bodyAsText"        => $message->body_text,
+                "bodyAsHtml"        => $message->body_html,
+                "attachments"       => $attachments->pluck("id")->toArray()
+            ]);
+
+        $response->assertStatus(201);
+        $attachments->each(function ($attachment) use ($response) {
+            $response->assertJsonFragment([
+                "attachmentId"  => $attachment->id,
+                "filePath"      => $attachment->file_path,
+                "createdAt"     => $attachment->created_at
+            ]);
+        });       
    }
 }

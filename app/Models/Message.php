@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Events\MessageCreated;
+use App\Models\Attachment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -33,4 +34,19 @@ class Message extends Model
     protected $dispatchesEvents = [
         'created' => MessageCreated::class,
     ];
+
+    /**
+     * Relationship: Attachment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function attachments()
+    {
+        return $this->belongsToMany(
+            Attachment::class,
+            "attachment_message",
+            "message_id",
+            "attachment_id"
+        );
+    }
 }

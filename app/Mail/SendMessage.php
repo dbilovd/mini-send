@@ -40,7 +40,7 @@ class SendMessage extends Mailable implements ShouldQueue
             $message->messageDetails = $this->message;
         });
 
-        return $this->from(
+        $mailable = $this->from(
                 $this->message->sender_email ?: $this->message->owner->email
             )
             ->text("messages.email_text")
@@ -48,5 +48,11 @@ class SendMessage extends Mailable implements ShouldQueue
             ->with([
                 "msg"   => $this->message
             ]);
+
+        $this->message->attachments->each(function ($attachment) use (&$mailable) {
+            $mailable->attach($attachment->file_path);
+        });
+
+        return $mailable;
     }
 }
