@@ -36,6 +36,10 @@ class SendMessage extends Mailable implements ShouldQueue
      */
     public function build()
     {
+        $this->withSwiftMessage(function ($message) {
+            $message->messageDetails = $this->message;
+        });
+
         return $this->from(
                 $this->message->sender_email ?: $this->message->owner->email
             )
