@@ -73,8 +73,8 @@ class MessagingAPITest extends TestCase
     }
 
    /** @test */
-   public function it_fires_a_message_created_event_when_a_new_message_is_created()
-   {
+    public function it_fires_a_message_created_event_when_a_new_message_is_created()
+    {
         Event::fake([
             MessageCreated::class
         ]);
@@ -101,11 +101,11 @@ class MessagingAPITest extends TestCase
                 && $job->message->recipient_email == $message->recipient_email
                 && $job->message->subject == $message->subject;
         });
-   }
+    }
 
-   /** @test */
-   public function it_can_attach_attachments_when_creating_messages_to_send()
-   {
+    /** @test */
+    public function it_can_attach_attachments_when_creating_messages_to_send()
+    {
         Storage::fake("attachments");
 
         $user = User::factory()->create();
@@ -133,5 +133,35 @@ class MessagingAPITest extends TestCase
                 "createdAt"     => $attachment->created_at
             ]);
         });       
-   }
+    }
+
+    /** @test */
+    public function it_can_return_a_paginated_list_of_all_messages_sent()
+    {
+        $user = User::factory()->create();
+        $messages = Message::factory(5)->create([
+            'user_id'   => $user->id
+        ]);
+
+        $response = $this->get("/api/messages?userId={$user->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "code",
+                "message",
+                "data",
+                "meta"
+            ]);
+
+        $message = $messages->random();
+        $response->assertJsonFragment([
+            "messageId"         => $message->id,
+            "userId"            => (string) $message->user_id,
+            "senderEmail"       => $message->sender_email,
+            "recipientEmail"    => $message->recipient_email,
+            "subject"           => $message->subject,
+            "bodyAsText"        => trim($message->body_text),
+            "bodyAsHtml"        => trim($message->body_html),
+        ]);
+    }
 }

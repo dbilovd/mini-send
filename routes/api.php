@@ -21,10 +21,19 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group([
 	// 'middleware'	=> [ 'auth:api' ]
 ], function () {
-	Route::post("/messages", [
-		"as"	=> "apis.messages.store",
-		"uses"	=> "APIs\MessagesController@store"
-	]);
+	Route::group([
+		'prefix'	=> "/messages"
+	], function () {
+		Route::get("/", [
+			"as"	=> "apis.messages.index",
+			"uses"	=> "APIs\MessagesController@index"
+		]);
+
+		Route::post("/", [
+			"as"	=> "apis.messages.store",
+			"uses"	=> "APIs\MessagesController@store"
+		]);
+	});
 
 	Route::post("/attachments", [
 		"as"	=> "apis.attachments.store",
