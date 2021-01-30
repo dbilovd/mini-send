@@ -24,6 +24,11 @@ Route::group([
 	Route::group([
 		'prefix'	=> "/messages"
 	], function () {
+		Route::get("/{message}", [
+			"as"	=> "apis.messages.show",
+			"uses"	=> "APIs\MessagesController@show"
+		]);
+
 		Route::get("/", [
 			"as"	=> "apis.messages.index",
 			"uses"	=> "APIs\MessagesController@index"
