@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Events\MessageCreated;
 use App\Models\Attachment;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -48,5 +49,15 @@ class Message extends Model
             "message_id",
             "attachment_id"
         );
+    }
+
+    /**
+     * Relationship to a user
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function owner()
+    {
+        return $this->belongsTo(User::class, "user_id", "id");
     }
 }

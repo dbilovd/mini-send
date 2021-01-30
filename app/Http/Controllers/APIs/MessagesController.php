@@ -106,6 +106,54 @@ class MessagesController extends Controller
 	}
 
 	/**
+	 * Return the details of a single message sent by the current user
+	 *
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function show(Request $request, $messageId)
+	{
+		try{
+			$userId = request()->get("userId");
+			$user = User::findOrFail($userId);
+
+			$message = $user->messages()->find($messageId);
+
+			$messageForResponse = [
+				"messageId"			=> $message->id,
+				"userId"			=> $message->user_id,
+                "senderEmail"       => $message->sender_email,
+                "recipientEmail"    => $message->recipient_email,
+                "subject"           => $message->subject,
+                "bodyAsText"        => trim($message->body_text),
+                "bodyAsHtml"        => trim($message->body_html),
+                "status"			=> $message->status,
+                "createdAt"			=> $message->created_at,
+                "updatedAt"			=> $message->updated_at,
+                "attachments"		=> $message->attachments->map(function ($attachment) {
+                	return [
+                		"attachmentId"	=> $attachment->id,
+                		"filePath"		=> $attachment->file_path,
+                		"createdAt"		=> $attachment->created_at
+                	];
+                })
+			];
+
+			return response()->json([
+				'code'		=> 200,
+				'message'	=> 'Fetched messages',
+				'data' 		=> $messageForResponse
+			]);
+		} catch (Exception $e) {
+			Log::debug("An error occurred while fetching messages: {$e->getMessage()}", compact('e'));
+			return response()->json([
+				"code"		=> 500,
+				"mesage"	=> "An error occurred while fetching messages. Please try again later."
+			], 500);
+		}
+		
+	}
+
+	/**
 	 * Create a new Message.
 	 * This method begins the process of sending a message.
 	 *

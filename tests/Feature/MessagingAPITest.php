@@ -346,4 +346,40 @@ class MessagingAPITest extends TestCase
 
             });
     }
+
+    /** @test */
+    public function it_can_return_the_details_of_a_single_message()
+    {
+        $user = User::factory()->create();
+        $message = Message::factory()->create([
+            'user_id'   => $user->id
+        ]);
+
+        $response = $this->get("/api/messages/{$message->id}?userId={$user->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "code",
+                "message",
+                "data" => [
+                    "messageId",
+                    "userId",
+                    "senderEmail",
+                    "recipientEmail",
+                    "subject",
+                    "bodyAsText",
+                    "bodyAsHtml",
+                ]
+            ]);
+
+        $response->assertJsonFragment([
+            "messageId"         => $message->id,
+            "userId"            => (string) $message->user_id,
+            "senderEmail"       => $message->sender_email,
+            "recipientEmail"    => $message->recipient_email,
+            "subject"           => $message->subject,
+            "bodyAsText"        => trim($message->body_text),
+            "bodyAsHtml"        => trim($message->body_html),
+        ]);
+    }
 }
