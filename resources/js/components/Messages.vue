@@ -1,5 +1,16 @@
 <template>
 	<div>
+		<portal to="header">
+			<div class="flex flex-row justify-between items-center">
+	            <h1 class="text-3xl font-bold leading-tight text-gray-900">
+	                Messages
+	            </h1>
+				<div>
+					
+				</div>
+			</div>
+		</portal>
+
 	    <div class="flex flex-col">
 	        <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
 	            <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -68,8 +79,6 @@
 </template>
 
 <script type="text/javascript">
-import DayJs from 'dayjs';
-import API from './../services/api';
 import MessageStatus from './MessageStatus';
 
 const Messages = {
@@ -89,10 +98,6 @@ const Messages = {
 	},
 
 	methods: {
-		formatDate (date) {
-    		return DayJs(date).format('MMM D, YYYY H:mm A');
-  		},
-
 		messagePreview (message) {
     		return message.bodyAsText ? message.bodyAsText
     			: "HTML Message";
@@ -100,7 +105,7 @@ const Messages = {
 
 		fetchMessages () {
 			this.isLoading = true;
-			API.fetchMessages()
+			this.$api.fetchMessages()
 				.then((messages) => {
 					this.isLoading = false;
 					this.messages = messages;

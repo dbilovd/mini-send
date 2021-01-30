@@ -1,5 +1,11 @@
 <template>
 	<div>
+		<portal to="header">
+            <h1 class="text-3xl font-bold leading-tight text-gray-900">
+                Message Details
+            </h1>
+		</portal> 
+
 		<div v-if="isLoading" class="text-center py-5 font-medium text-xl">
 			<h1>Loading...</h1>
 		</div>
@@ -42,7 +48,7 @@
 	                        Message (Text)
 	                    </dt>
 	                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-	                        {{ message.bodyAsText }}
+	                        {{ message.bodyAsText || "-" }}
 	                    </dd>
 	                </div>
 	                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -50,9 +56,10 @@
 	                        Message (HTML)
 	                    </dt>
 	                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-	                    	<div class="flex justify-between items-top">
+	                    	<span v-if="!message.bodyAsHtml">-</span>
+	                    	<div v-else class="flex justify-between items-top">
 		                        <div v-if="!previewingHtml" v-html="message.bodyAsHtml"></div>
-		                        <div v-if="previewingHtml">{{ message.bodyAsHtml }}</div>
+		                        <div v-else>{{ message.bodyAsHtml }}</div>
 
 		                        <button @click.prevent="toggleHtmlPreview"
 		                        	class="bg-gray-200 px-2 py-1 shadow-sm text-gray-800 rounded-sm">
@@ -116,7 +123,7 @@
 			                        Sent At
 			                    </dt>
 			                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-			                    	{{ message.sentAt ? formatDate(message.sentAt) : "N/A" }}
+			                    	{{ message.sentAt ? formatDate(message.sentAt) : "-" }}
 			                    </dd>
 	                        </div>
 	                    </dd>
@@ -128,8 +135,6 @@
 </template>
 
 <script type="text/javascript">
-import DayJs from 'dayjs';
-import API from './../services/api';
 import MessageStatus from './MessageStatus';
 
 const MessageDetails = {
@@ -150,17 +155,13 @@ const MessageDetails = {
 	},
 
 	methods: {
-		formatDate (date) {
-    		return DayJs(date).format('MMM D, YYYY H:mm A');
-  		},
-
 		toggleHtmlPreview () {
     		this.previewingHtml = !this.previewingHtml;
   		},
 
 		fetchMessage () {
 			this.isLoading = true;
-			API.fetchMessageDetails(this.$route.params.messageId)
+			this.$api.fetchMessageDetails(this.$route.params.messageId)
 				.then((message) => {
 					this.isLoading = false;
 					this.message = message;
