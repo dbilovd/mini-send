@@ -36,9 +36,29 @@ const fetchMessageDetails = (messageId) => {
     		return;
     	}
 
-        axios.get(`${apiBaseUrl}/messages/${messageId}?userId=1`, )
+        axios.get(`${apiBaseUrl}/messages/${messageId}?userId=1`)
             .then((res) => {
                 console.log("Fetched messages:", res)
+                resolve(res.data.data)
+            })
+            .catch((err) => reject(err))
+    })
+}
+
+const uploadAttachment = (data) => {
+    return new Promise((resolve, reject) => {
+    	if (!data) {
+    		reject("You need to provide a file to upload.");
+    		return;
+    	}
+
+        axios.post(`${apiBaseUrl}/attachments?userId=1`, data, {
+        	headers: {
+        		"Content-type": 'multipart/form-data'
+        	}
+        })
+            .then((res) => {
+                console.log("Uploaded attachment:", res)
                 resolve(res.data.data)
             })
             .catch((err) => reject(err))
@@ -49,5 +69,6 @@ const fetchMessageDetails = (messageId) => {
 export default {
     sendMessage,
     fetchMessages,
-    fetchMessageDetails
+    fetchMessageDetails,
+    uploadAttachment
 }
