@@ -13,27 +13,44 @@
 		            <div class="shadow sm:rounded-md sm:overflow-hidden">
 		                <div class="px-10 py-12 bg-white space-y-10 sm:p-8">
 		                    <div class="">
-		                        <div class="col-span-3 sm:col-span-2">
+	                        	<div class="flex flex-row justify-between items-center">
+		                            <label for="senderEmail" class="block text-sm font-medium text-gray-700">
+		                                From
+		                            </label>
+			                        <p class="mt-2 text-sm text-gray-500">
+			                            Enter the sender's email address
+			                        </p>
+	                        	</div>
+	                            <div class="mt-1">
+	                                <input type="email" name="senderEmail" id="senderEmail" placeholder="sender@gmail.com"
+	                                	v-model="formData.senderEmail"
+	                                	class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm shadow border border-gray-300">
+	                            </div>
+		                    </div>
+		                    <div class="">
+		                        <div class="flex flex-row justify-between items-center">
 		                            <label for="recipientEmail" class="block text-sm font-medium text-gray-700">
 		                                To
 		                            </label>
 			                        <p class="mt-2 text-sm text-gray-500">
 			                            Enter the recipients email address
 			                        </p>
-		                            <div class="mt-1">
-		                                <input type="email" name="recipientEmail" id="recipientEmail" placeholder="receiver@gmail.com"
-		                                	v-model="formData.recipientEmail"
-		                                	class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm shadow border border-gray-300">
-		                            </div>
 		                        </div>
+	                            <div class="mt-1">
+	                                <input type="email" name="recipientEmail" id="recipientEmail" placeholder="receiver@gmail.com"
+	                                	v-model="formData.recipientEmail"
+	                                	class="form-input focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-md sm:text-sm shadow border border-gray-300">
+	                            </div>
 		                    </div>
 		                    <div>
-		                        <label for="subject" class="block text-sm font-medium text-gray-700">
-		                            Subject
-		                        </label>
-		                        <p class="mt-2 text-sm text-gray-500">
-		                            The subject for your mail
-		                        </p>
+		                        <div class="flex flex-row justify-between items-center">
+			                        <label for="subject" class="block text-sm font-medium text-gray-700">
+			                            Subject
+			                        </label>
+			                        <p class="mt-2 text-sm text-gray-500">
+			                            The subject for your mail
+			                        </p>
+			                    </div>
 		                        <div class="mt-1">
 	                                <input type="text" name="subject" id="subject" placeholder="Greetings"
 	                                	v-model="formData.subject"
@@ -41,12 +58,14 @@
 		                        </div>
 		                    </div>
 		                    <div>
-		                        <label for="bodyAsText" class="block text-sm font-medium text-gray-700">
-		                            Message
-		                        </label>
-		                        <p class="mt-2 text-sm text-gray-500">
-		                            Provide the message as plain text
-		                        </p>
+		                        <div class="flex flex-row justify-between items-center">
+			                        <label for="bodyAsText" class="block text-sm font-medium text-gray-700">
+			                            Message
+			                        </label>
+			                        <p class="mt-2 text-sm text-gray-500">
+			                            Provide the message as plain text
+			                        </p>
+			                    </div>
 		                        <div class="mt-1">
 		                            <textarea id="bodyAsText" name="bodyAsText" rows="3" placeholder="Hello, thank you."
 		                                v-model="formData.bodyAsText"
@@ -54,12 +73,14 @@
 		                        </div>
 		                    </div>
 		                    <div>
-		                        <label for="bodyAsHtml" class="block text-sm font-medium text-gray-700">
-		                            HTML Message
-		                        </label>
-		                        <p class="mt-2 text-sm text-gray-500">
-		                            Provide the message with HTML
-		                        </p>
+		                        <div class="flex flex-row justify-between items-center">
+			                        <label for="bodyAsHtml" class="block text-sm font-medium text-gray-700">
+			                            HTML Message
+			                        </label>
+			                        <p class="mt-2 text-sm text-gray-500">
+			                            Provide the message with HTML
+			                        </p>
+			                    </div>
 		                        <div class="mt-1">
 		                            <textarea id="bodyAsHtml" name="bodyAsHtml" rows="3" placeholder="<p><strong>Hello</strong>, thank you!</p>"
 		                                v-model="formData.bodyAsHtml"
@@ -67,9 +88,14 @@
 		                        </div>
 		                    </div>
 		                    <div>
-		                        <label class="block text-sm font-medium text-gray-700">
-		                           Attachments
-		                        </label>
+		                        <div class="flex flex-row justify-between items-center">
+			                        <label class="block text-sm font-medium text-gray-700">
+			                           Attachments
+			                        </label>
+			                        <p class="mt-2 text-sm text-gray-500">
+			                            Select one or more files you'll like to send with your message
+			                        </p>
+			                    </div>
 		                        <div v-if="uploadedAttachments.length > 0" class="my-2">
 		                        	<attachments-list :attachments="uploadedAttachments"></attachments-list>
 		                        </div>
@@ -87,7 +113,6 @@
 		                                        	type="file" multiple class="sr-only"
 		                                        	@change.prevent="uploadAttachment">
 		                                    </label>
-		                                    <p class="pl-1">or drag and drop</p>
 		                                </div>
 		                                <p class="text-xs text-gray-500">
 		                                    PDF, PNG, JPG, GIF up to 10MB
