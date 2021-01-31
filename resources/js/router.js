@@ -22,6 +22,11 @@ const routes = [
 		component: MessageDetails
 	},
 	{
+		path: '/messages/to/:recipient',
+		component: Messages,
+		props: route => route.params
+	},
+	{
 		path: '/send-message',
 		component: SendMessage
 	}

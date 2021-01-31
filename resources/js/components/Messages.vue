@@ -4,6 +4,9 @@
             <div class="flex flex-row justify-between items-center">
                 <h1 class="text-3xl font-bold leading-tight text-gray-900">
                     Messages
+                    <span v-if="recipient" class="ml-1">
+                        To {{ recipient }}
+                    </span>
                 </h1>
                 <div class="items-right">
                     <button type="button" @click.prevent="toggleFormForFiltering"
@@ -27,22 +30,27 @@
                     <div v-if="showingFilters" 
                     	class="mb-10 shadow overflow-hidden bg-white border-b border-gray-200 rounded-lg">
 		                <div class="flex flex-row items-end justify-start p-6">
+                            <div class="w-1/4 flex flex-col pr-2"
+                                :class="{ 'pointer-events-none': recipient }">
+                                <label class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Recipient</label>
+                                <input v-if="!recipient" 
+                                    type="email" name="recipient" placeholder="recipient@gmail.com"
+                                    v-model="filteringOptions.recipientEmail" 
+                                    class="block form-input rounded border border-gray-200"/>
+                                <h3 v-if="recipient" class="text-gray-800 font-bold text-xl py-2">
+                                    {{ recipient }}
+                                </h3>
+                            </div>
+                            <div class="w-1/4 flex flex-col pr-2">
+                                <label class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Sender</label>
+                                <input type="email" name="sender" placeholder="sender@gmail.com"
+                                    v-model="filteringOptions.senderEmail" 
+                                    class="block form-input rounded border border-gray-200" />
+                            </div>
 		                    <div class="w-1/4 flex flex-col pr-2">
 		                        <label class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Subject</label>
 		                        <input type="text" name="search" placeholder="Hello" 
 		                        	v-model="filteringOptions.search"
-		                        	class="block form-input rounded border border-gray-200" />
-		                    </div>
-		                    <div class="w-1/4 flex flex-col pr-2">
-		                        <label class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Recipient</label>
-		                        <input type="email" name="recipient" placeholder="recipient@gmail.com"
-		                        	v-model="filteringOptions.recipient" 
-		                        	class="block form-input rounded border border-gray-200" />
-		                    </div>
-		                    <div class="w-1/4 flex flex-col pr-2">
-		                        <label class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Sender</label>
-		                        <input type="email" name="sender" placeholder="sender@gmail.com"
-		                        	v-model="filteringOptions.sender" 
 		                        	class="block form-input rounded border border-gray-200" />
 		                    </div>
 		                    <div class="w-1/4 flex flex-col pr-2">
@@ -59,7 +67,7 @@
                     <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                     	<div v-if="messages.length <= 0" class="text-center py-24">
 			                <h1 class="text-3xl font-bold leading-tight text-gray-700 mb-12">
-			                    No Messages Found
+			                    {{ isLoading ? "Fetching Messages ..." : "No Messages Found" }}
 			                </h1>
 
 	                        <router-link  to="/send-message"
@@ -72,7 +80,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Address
+                                        Addresses
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Subject
@@ -94,7 +102,10 @@
                                         <div class="flex items-center">
                                             <div class="">
                                                 <div class="text-sm font-medium text-gray-900">
-                                                    {{ message.recipientEmail }}
+                                                    <router-link :to="`/messages/to/${message.recipientEmail}`"
+                                                        class="border-b border-indigo-600">
+                                                        {{ message.recipientEmail }}
+                                                    </router-link>
                                                 </div>
                                                 <div class="text-sm text-gray-500">
                                                     From: {{ message.senderEmail || "You" }}
@@ -138,21 +149,35 @@ const Messages = {
         'message-status': MessageStatus
     },
 
+    props: {
+        recipient: {
+            type: [String, Boolean],
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             isLoading: false,
             showingFilters: false,
             filteringOptions: {
             	search: "",
-            	recipient: "",
-            	sender: ""
+            	recipientEmail: "",
+            	senderEmail: ""
             },
             messages: []
         }
     },
 
     created() {
-        this.fetchMessages();
+        if (this.recipient) {
+            this.filteringOptions.recipientEmail = this.recipient;
+            this.showingFilters = true;
+        }
+        this.fetchMessages(
+            this.recipient ? true : false
+        );
     },
 
     methods: {
@@ -165,9 +190,13 @@ const Messages = {
                 "HTML Message";
         },
 
-        fetchMessages() {
+        fetchMessages(filter) {
+            filter = filter || false;
+
             this.isLoading = true;
-            this.$api.fetchMessages()
+            this.$api.fetchMessages(
+                filter ? this.filteringOptions : {}
+            )
                 .then((messages) => {
                     this.isLoading = false;
                     this.messages = messages;
@@ -178,17 +207,21 @@ const Messages = {
                 });
         },
 
-        filterMessages() {
-            this.isLoading = true;
-            this.$api.fetchMessages(this.filteringOptions)
-                .then((messages) => {
-                    this.isLoading = false;
-                    this.messages = messages;
-                })
-                .catch((err) => {
-                    this.isLoading = false;
-                    console.log("Ann error occurred:", err);
-                });
+        filterMessages(filter) {
+            this.fetchMessages(true);
+        }
+    },
+
+    watch: {
+        recipient (value) {
+            if (value) {
+                this.filteringOptions.recipientEmail = value;
+                this.fetchMessages(true);
+                return;
+            }
+
+            this.filteringOptions.recipientEmail = "";
+            this.fetchMessages();
         }
     }
 };
