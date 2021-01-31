@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Events\MessageCreated;
+use App\Events\MessageReadyForResending;
 use App\Listeners\ProcessNewMessage;
 use App\Listeners\UpdateMessageAfterSending;
 use Illuminate\Auth\Events\Registered;
@@ -27,7 +28,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessageSent::class => [
             UpdateMessageAfterSending::class
-        ]
+        ],
+        MessageReadyForResending::class => [
+            ProcessNewMessage::class
+        ],
     ];
 
     /**
