@@ -38,18 +38,11 @@ class AttachmentsController extends Controller
 				$filesResponses[] = $attachment->formatForApi();
 			});
 
-			return response()->json([
-				"code"		=> 201,
-				"message"	=> "Uploaded attachment successfully.",
-				"data"		=> $filesResponses
-			], 201);
+			return $this->successResponse($filesResponses, 201, "Uploaded attachment successfully.");
 		} catch(Exception $e) {
 			$message = "An error occurred while uploading attachments: {$e->getMessage()}";
 			Log::debug($message, compact('e'));
-			return response()->json([
-				"code"		=> 500,
-				"message"	=> $message
-			], 500);
+			return $this->errorResponse(500, $message);
 		}
 	}
 }
