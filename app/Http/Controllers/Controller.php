@@ -62,7 +62,7 @@ class Controller extends BaseController
 			'message'	=> $message
     	];
 
-    	if ($data) {
+    	if (!is_null($data)) {
     		$response["data"] = $data;
     	}
 

@@ -44,4 +44,9 @@ Route::group([
 		"as"	=> "apis.attachments.store",
 		"uses"	=> "APIs\AttachmentsController@store"
 	]);
+
+	Route::get("/stats", [
+		"as"	=> "apis.stats.show",
+		"uses"	=> "APIs\StatsController@show"
+	]);
 });
