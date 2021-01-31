@@ -37,41 +37,11 @@ class MessagesController extends Controller
 					$request->get("perPage") ?: 50
 				);
 
-			$messagesForResponse = $messages->map(function ($message) {
-				return $message->formatForApi();
-			});
-
-			return response()->json([
-				'code'		=> 200,
-				'message'	=> 'Fetched messages',
-				'data' 		=> $messagesForResponse,
-	            'meta'		=> [
-	                'links' => [
-	                    'first' => $messages->url(1),
-	                    'last' => $messages->url($messages->lastPage()),
-	                    'prev' => $messages->previousPageUrl(),
-	                    'next' => $messages->nextPageUrl(),
-	                ],
-	                'meta' =>
-	                [
-	                    'current_page' => $messages->currentPage(),
-	                    'from' => $messages->firstItem(),
-	                    'last_page' => $messages->lastPage(),
-	                    'path' => $messages->resolveCurrentPath(),
-	                    'per_page' => $messages->perPage(),
-	                    'to' => $messages->lastItem(),
-	                    'total' => $messages->total(),
-	                ],
-	            ]
-			]);
+			return $this->paginatedSuccessResponse($messages);
 		} catch (Exception $e) {
 			Log::debug("An error occurred while fetching messages: {$e->getMessage()}", compact('e'));
-			return response()->json([
-				"code"		=> 500,
-				"mesage"	=> "An error occurred while fetching messages. Please try again later."
-			], 500);
+			return $this->errorResponse(500, "An error occurred while fetching messages. Please try again later.");
 		}
-		
 	}
 
 	/**
@@ -87,17 +57,14 @@ class MessagesController extends Controller
 
 			$message = $user->messages()->findOrFail($messageId);
 
-			return response()->json([
-				'code'		=> 200,
-				'message'	=> 'Fetched messages',
-				'data' 		=> $message->formatForApi()
-			]);
+			return $this->successResponse(
+				$message->formatForApi(),
+				null,
+				"Fetched messages"
+			);
 		} catch (Exception $e) {
 			Log::debug("An error occurred while fetching messages: {$e->getMessage()}", compact('e'));
-			return response()->json([
-				"code"		=> 500,
-				"mesage"	=> "An error occurred while fetching messages. Please try again later."
-			], 500);
+			return $this->errorResponse(500, "An error occurred while fetching messages. Please try again later.");
 		}
 		
 	}
@@ -137,17 +104,10 @@ class MessagesController extends Controller
 				$message->attachments()->attach($data['attachments']);
 			}
 
-			return response()->json([
-				"code"		=> 201,
-				"message"	=> "Placed message for sending",
-				"data"		=> $message->formatForApi()
-			], 201);
+			return $this->successResponse($message->formatForApi(), 201, "Placed message for sending");
 		} catch (Exception $e) {
 			Log::debug("An error occurred while trying to add message: {$e->getMessage()}", compact('e'));
-			return response()->json([
-				"code"		=> 500,
-				"mesage"	=> "An error occurred while sending message. Please try again later."
-			], 500);
+			return $this->errorResponse(500, "An error occurred while sending message. Please try again later.");
 		}
 	}
 }
