@@ -153,6 +153,7 @@ class Message extends Model
             "status"            => $this->status,
             "createdAt"         => $this->created_at,
             "updatedAt"         => $this->updated_at,
+            "sentAt"            => $this->sent_at,
             "attachments"       => $this->attachments->map(function ($attachment) {
                 return $attachment->formatForApi();
             })

@@ -36,6 +36,7 @@ class UpdateMessageAfterSending
 
 
         $message->status = "sent";
+        $message->sent_at = now();
         $message->save();
         Log::debug("Message status updated to sent!", compact('message'));
     }

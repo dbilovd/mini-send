@@ -17,6 +17,8 @@ class UpdateMessageAfterSendingListenerTest extends TestCase
     public function it_updates_a_message_as_sent_if_message_was_sent_successfully()
     {
         $message = Message::factory()->create();
+        
+        $this->assertTrue($message->sent_at === null);
 
         $job = new MessageSent($message);
 
@@ -25,5 +27,6 @@ class UpdateMessageAfterSendingListenerTest extends TestCase
         $message->refresh();
 
         $this->assertTrue($message->status === "sent");
+        $this->assertTrue($message->sent_at != null);
     }
 }
