@@ -9,8 +9,8 @@ const MessageDetails = require('./components/MessageDetails').default;
 
 const routes = [
 	{
-		path: '/send-message',
-		component: SendMessage
+		path: '/',
+		component: Messages
 	},
 	{
 		path: '/messages',
@@ -19,6 +19,10 @@ const routes = [
 	{
 		path: '/messages/:messageId',
 		component: MessageDetails
+	},
+	{
+		path: '/send-message',
+		component: SendMessage
 	}
 ];
 

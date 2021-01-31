@@ -16,9 +16,11 @@ const sendMessage = (data) => {
     })
 }
 
-const fetchMessages = () => {
+const fetchMessages = (data) => {
     return new Promise((resolve, reject) => {
-        axios.get(`${apiBaseUrl}/messages?userId=1`, )
+        axios.get(`${apiBaseUrl}/messages?userId=1`, {
+        	params: data
+        })
             .then((res) => {
                 console.log("Fetched messages:", res)
                 resolve(res.data.data)
