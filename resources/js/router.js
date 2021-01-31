@@ -6,11 +6,12 @@ Vue.use(VueRouter);
 const SendMessage = require('./components/SendMessage').default;
 const Messages = require('./components/Messages').default;
 const MessageDetails = require('./components/MessageDetails').default;
+const Dashboard = require('./components/Dashboard').default;
 
 const routes = [
 	{
 		path: '/',
-		component: Messages
+		component: Dashboard
 	},
 	{
 		path: '/messages',

@@ -65,10 +65,22 @@ const uploadAttachment = (data) => {
     })
 }
 
+const fetchStats = () => {
+    return new Promise((resolve, reject) => {
+        axios.get(`${apiBaseUrl}/stats?userId=1`)
+            .then((res) => {
+                console.log("Fetched stats:", res)
+                resolve(res.data.data)
+            })
+            .catch((err) => reject(err))
+    })
+}
+
 
 export default {
     sendMessage,
     fetchMessages,
     fetchMessageDetails,
-    uploadAttachment
+    uploadAttachment,
+    fetchStats
 }
