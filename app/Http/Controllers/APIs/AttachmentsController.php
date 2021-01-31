@@ -7,6 +7,7 @@ use App\Models\Attachment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class AttachmentsController extends Controller
 {
@@ -19,26 +20,28 @@ class AttachmentsController extends Controller
 	{
 		try {
 			$request->validate([
-				"file"	=> "required|file"
+				"files"	=> "required|array",
+				"files.*"	=> "file",
 			]);
 
-			$file = $request->file("file");
+			$files = $request->file("files");
 
-			$filePath = $file->store("attachments");
+			$filesResponses = [];
+			array_walk($files, function ($file) use (&$filesResponses) {
+				$filePath = Storage::putFile("attachments", $file);
 
-			$attachment = Attachment::create([
-				'original_file_name'	=> $filePath,
-				'file_path'				=> $filePath
-			]);
+				$attachment = Attachment::create([
+					'original_file_name'	=> $file->getClientOriginalName(),
+					'file_path'				=> $filePath
+				]);
+				
+				$filesResponses[] = $attachment->formatForApi();
+			});
 
 			return response()->json([
 				"code"		=> 201,
 				"message"	=> "Uploaded attachment successfully.",
-				"data"		=> [
-					"attachmentId"	=> $attachment->id,
-					"path"			=> $attachment->file_path,
-					"createdAt"		=> $attachment->created_at,
-				]
+				"data"		=> $filesResponses
 			], 201);
 		} catch(Exception $e) {
 			$message = "An error occurred while uploading attachments: {$e->getMessage()}";
