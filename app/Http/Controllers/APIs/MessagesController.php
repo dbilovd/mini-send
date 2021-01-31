@@ -20,35 +20,22 @@ class MessagesController extends Controller
 			$userId = request()->get("userId");
 			$user = User::findOrFail($userId);
 
-			$messagesQuery = $user->messages();
-
-			if ($request->has("search") && $request->get("search") != "") {
-				$searchTerm = $request->get("search");
-				$messagesQuery = $messagesQuery->where(function ($query) use ($searchTerm) {
-					return $query->where("subject", "LIKE", "{$searchTerm}%")
-						/*
-						 * @disabled as it is not part of the requirements.
-						 * 
-							->orWhere("body_text", "LIKE", "%{$searchTerm}%")
-							->orWhere("body_html", "LIKE", "%{$searchTerm}%")
-						*/
-						;
-				});
-			}
-
-			if ($request->has("recipientEmail") && $request->get("recipientEmail") != "") {
-				$recipientEmail = $request->get("recipientEmail");
-				$messagesQuery = $messagesQuery->where("recipient_email", $recipientEmail);
-			}
-
-			if ($request->has("senderEmail") && $request->get("senderEmail") != "") {
-				$senderEmail = $request->get("senderEmail");
-				$messagesQuery = $messagesQuery->where("sender_email", $senderEmail);
-			}
-
-			$messages = $messagesQuery->paginate(
-				$request->get("perPage") ?: 50
-			);
+			$messages = $user->messages()
+				->filteredByStatus(
+					$request->get("status")
+				)
+				->filteredByRecipientsEmail(
+					$request->get("recipientEmail")
+				)
+				->filteredBySendersEmail(
+					$request->get("senderEmail")
+				)
+				->filteredBySearch(
+					$request->get("search")
+				)
+				->paginate(
+					$request->get("perPage") ?: 50
+				);
 
 			$messagesForResponse = $messages->map(function ($message) {
 				return $message->formatForApi();

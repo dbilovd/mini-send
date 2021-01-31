@@ -382,4 +382,200 @@ class MessagingAPITest extends TestCase
             "bodyAsHtml"        => trim($message->body_html),
         ]);
     }
+
+    /** @test */
+    public function it_can_return_a_paginated_list_of_messages_filtered_by_statuses_sent()
+    {
+        Event::fake();
+
+        $user = User::factory()->create();
+        $messages = Message::factory(5)->create([
+            'user_id'   => $user->id,
+            'status'    => 'pending',
+        ]);
+
+        $sentMessages = Message::factory(2)->create([
+            'user_id'   => $user->id,
+            'status'    => 'sent',
+        ]);
+
+        $queryParams = [
+            "userId"    => $user->id,
+            "status"    => 'sent'
+        ];
+        $response = $this->get("/api/messages?" . http_build_query($queryParams));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "code",
+                "message",
+                "data",
+                "meta"
+            ]);
+
+        $sentMessages->each(function ($message) use ($response) {
+            $response->assertJsonFragment([
+                "messageId"         => $message->id,
+                "userId"            => (string) $message->user_id,
+                "senderEmail"       => $message->sender_email,
+                "recipientEmail"    => $message->recipient_email,
+                "subject"           => $message->subject,
+                "bodyAsText"        => trim($message->body_text),
+                "bodyAsHtml"        => trim($message->body_html),
+            ]);
+        });
+
+        $messages->each(function ($msg) use ($response) {
+            $response->assertJsonMissing([
+                "messageId" => $msg->id
+            ]);
+        });
+    }
+
+    /** @test */
+    public function it_can_return_a_paginated_list_of_messages_filtered_by_statuses_pending()
+    {
+        Event::fake();
+        
+        $user = User::factory()->create();
+        $messages = Message::factory(5)->create([
+            'user_id'   => $user->id,
+            'status'    => 'sent',
+        ]);
+
+        $sentMessages = Message::factory(2)->create([
+            'user_id'   => $user->id,
+            'status'    => 'pending',
+        ]);
+
+        $queryParams = [
+            "userId"    => $user->id,
+            "status"    => 'pending'
+        ];
+        $response = $this->get("/api/messages?" . http_build_query($queryParams));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "code",
+                "message",
+                "data",
+                "meta"
+            ]);
+
+        $sentMessages->each(function ($message) use ($response) {
+            $response->assertJsonFragment([
+                "messageId"         => $message->id,
+                "userId"            => (string) $message->user_id,
+                "senderEmail"       => $message->sender_email,
+                "recipientEmail"    => $message->recipient_email,
+                "subject"           => $message->subject,
+                "bodyAsText"        => trim($message->body_text),
+                "bodyAsHtml"        => trim($message->body_html),
+            ]);
+        });
+
+        $messages->each(function ($msg) use ($response) {
+            $response->assertJsonMissing([
+                "messageId" => $msg->id
+            ]);
+        });
+    }
+
+    /** @test */
+    public function it_can_return_a_paginated_list_of_messages_filtered_by_statuses_failed()
+    {
+        Event::fake();
+        
+        $user = User::factory()->create();
+        $messages = Message::factory(5)->create([
+            'user_id'   => $user->id,
+            'status'    => 'pending',
+        ]);
+
+        $sentMessages = Message::factory(2)->create([
+            'user_id'   => $user->id,
+            'status'    => 'failed',
+        ]);
+
+        $queryParams = [
+            "userId"    => $user->id,
+            "status"    => 'failed'
+        ];
+        $response = $this->get("/api/messages?" . http_build_query($queryParams));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "code",
+                "message",
+                "data",
+                "meta"
+            ]);
+
+        $sentMessages->each(function ($message) use ($response) {
+            $response->assertJsonFragment([
+                "messageId"         => $message->id,
+                "userId"            => (string) $message->user_id,
+                "senderEmail"       => $message->sender_email,
+                "recipientEmail"    => $message->recipient_email,
+                "subject"           => $message->subject,
+                "bodyAsText"        => trim($message->body_text),
+                "bodyAsHtml"        => trim($message->body_html),
+            ]);
+        });
+
+        $messages->each(function ($msg) use ($response) {
+            $response->assertJsonMissing([
+                "messageId" => $msg->id
+            ]);
+        });
+    }
+
+    /** @test */
+    public function it_can_return_a_paginated_list_of_messages_filtered_by_statuses_pending_by_default()
+    {
+        Event::fake();
+        
+        $user = User::factory()->create();
+        $messages = Message::factory(5)->create([
+            'user_id'   => $user->id,
+            'status'    => 'sent',
+        ]);
+
+        $sentMessages = Message::factory(2)->create([
+            'user_id'   => $user->id,
+            'status'    => 'pending',
+        ]);
+
+        $queryParams = [
+            "userId"    => $user->id,
+            "status"    => 'none-existing-status'
+        ];
+        $response = $this->get("/api/messages?" . http_build_query($queryParams));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                "code",
+                "message",
+                "data",
+                "meta"
+            ]);
+
+        $sentMessages->each(function ($message) use ($response) {
+            $response->assertJsonFragment([
+                "messageId"         => $message->id,
+                "userId"            => (string) $message->user_id,
+                "senderEmail"       => $message->sender_email,
+                "recipientEmail"    => $message->recipient_email,
+                "subject"           => $message->subject,
+                "bodyAsText"        => trim($message->body_text),
+                "bodyAsHtml"        => trim($message->body_html),
+            ]);
+        });
+
+        $messages->each(function ($msg) use ($response) {
+            $response->assertJsonMissing([
+                "messageId" => $msg->id
+            ]);
+        });
+    }
 }

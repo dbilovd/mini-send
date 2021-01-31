@@ -37,6 +37,80 @@ class Message extends Model
     ];
 
     /**
+     * Scope: Filter by search
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  String                                 $search 
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilteredBySearch($query, $search)
+    {
+        if (!$search) {
+            return $query;
+        }
+
+        return $query->where(function ($qry) use ($search) {
+            return $qry->where("subject", "LIKE", "{$search}%")
+                /*
+                 * @disabled as it is not part of the requirements.
+                 * 
+                    ->orWhere("body_text", "LIKE", "%{$search}%")
+                    ->orWhere("body_html", "LIKE", "%{$search}%")
+                */
+                ;
+        });
+    }
+
+    /**
+     * Scope: Filter by status
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  String                                 $email
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilteredByStatus($query, $status)
+    {
+        if (!$status) {
+            return $query;
+        }
+
+        $status = in_array($status, ["pending", "sent", "failed"]) ? $status : "pending";
+        return $query->where("status", $status);
+    }
+
+    /**
+     * Scope: Filter by Recipient email
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  String                                 $email
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilteredByRecipientsEmail($query, $email)
+    {
+        if (!$email) {
+            return $query;
+        }
+        
+        return $query->where("recipient_email", $email);
+    }
+
+    /**
+     * Scope: Filter by sender's email
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  String                                 $email
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilteredBySendersEmail($query, $email)
+    {
+        if (!$email) {
+            return $query;
+        }
+        
+        return $query->where("sender_email", $email);
+    }
+
+    /**
      * Relationship: Attachment
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
